@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Convenient assistant</string>
+    <string name="button">Button</string>
+    <string name="chooseArea">切换地区</string>
+    <string name="aqi">空气质量报告</string>
+    <string name="pm2_5">PM2.5指数</string>
+    <string name="life_suggestion">生活建议</string>
+    <string name="forecast">预报</string>
+    <string name="last_update_time">最后更新于   %1$s</string>
+    <string name="degree_text">%1$s℃</string>
+    <string name="weather_info">%1$s  %2$s/%3$s℃</string>
+    <string name="aqi_update_time">"站点检测时间"\n%1$s</string>
+
+    <string name="head_image_back">头像磨砂</string>
+    <string name="head_image_image">头像</string>
+    <string name="account_login">个人登录</string>
+    <string name="cypher_text">密码保险箱</string>
+    <string name="hot_news">时事新闻热点</string>
+    <string name="other_tools">其他工具</string>
 </resources>

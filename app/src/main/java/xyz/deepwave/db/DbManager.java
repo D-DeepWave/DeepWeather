@@ -1,8 +1,11 @@
 package xyz.deepwave.db;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
 import xyz.deepwave.gen.DaoMaster;
 import xyz.deepwave.gen.DaoSession;
@@ -72,6 +75,7 @@ public class DbManager  {
 
         return mDaoSession;
     }
+
 }
 
 

@@ -1,21 +1,27 @@
 package xyz.deepwave.DeepWeather;
 
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.transition.Explode;
+import android.transition.Slide;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +40,7 @@ import xyz.deepwave.util.Utility;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import xyz.deepwave.db.WeatherAddress;
 
 public class ChooseArea extends Fragment {
 
@@ -42,6 +49,7 @@ public class ChooseArea extends Fragment {
     private Button backButton;
     private ListView listView;
     private ArrayAdapter<String> adapter;
+    private SearchView searchView;
     //控件
 
     private Province selectProvince;
@@ -139,9 +147,11 @@ public class ChooseArea extends Fragment {
         titleText = view.findViewById(R.id.title_text);
         backButton = view.findViewById(R.id.back_button);
         listView = view.findViewById(R.id.list_view);
+        searchView = view.findViewById(R.id.searView);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, dataList);
         //一行text
         listView.setAdapter(adapter);
+        initSearch();
         return view;
     }
 
@@ -215,17 +225,22 @@ public class ChooseArea extends Fragment {
                         queryCounty();
                         break;
                     case "County":
-                        String address = countyList.get(position).getWeatherId();
+                        WeatherAddress address = new WeatherAddress();
+                        address.setAddressCode(countyList.get(position).getWeatherId());
+                        address.setAddressName(countyList.get(position).getCountyName());
                         if (getActivity() instanceof MainActivity) {
 
                             Intent intent = new Intent(getActivity(), WeatherActivity.class);   //获取实例
-                            intent.putExtra("addressCode", address);
-                            startActivity(intent);
+                            intent.putExtra ("address", address);
+                            startActivity(intent,ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
                             getActivity().finish();
                         } else if (getActivity() instanceof WeatherActivity) {
 
                             WeatherActivity activity = (WeatherActivity) getActivity();
-
+                            activity.drawerLayout.closeDrawers();
+                            activity.swipeRefresh.setRefreshing(true);
+                            activity.getAllView(address);
+                            activity.address = address;
                         }
                 }
             }
@@ -248,5 +263,76 @@ public class ChooseArea extends Fragment {
         queryProvince();
     }
 
+    private void initSearch(){
+
+        //searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                if(TextUtils.isEmpty(query)){
+
+                }
+                else {
+                    fillView();
+                    List<String> temp = new ArrayList<>(dataList);
+                    dataList.clear();
+                    for(String item: temp){
+                        if(item.contains(query)){
+                            dataList.add(item);
+                        }
+                    }
+                        if(dataList.size()==0) {
+                            Toast.makeText(getActivity(),"无此条目",Toast.LENGTH_LONG).show();
+                            for(String item:temp){
+                                dataList.add(item);
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                }
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                if(TextUtils.isEmpty(newText))
+                {
+
+                }
+                else{
+                    fillView();
+                    List<String> temp = new ArrayList<>(dataList);
+                    dataList.clear();
+                    for(String item: temp){
+                        if(item.contains(newText)){
+                            dataList.add(item);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+                return true;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                fillView();
+                return false;
+            }
+        });
+    }
+
+    public void fillView(){
+        switch (now){
+            case "Province": queryProvince();
+                break;
+            case "City": queryCity();
+                break;
+            case "County": queryCounty();
+                break;
+        }
+    }
 
 }
